@@ -1,28 +1,68 @@
-def binary_search(arr, target):
-    left, right = 0, len(arr) - 1
-    iterations = 0
-    upper_bound = None
+class HashTable:
+    def __init__(self, size):
+        self.size = size
+        self.table = [[] for _ in range(self.size)]
 
-    while left <= right:
-        iterations += 1
-        mid = (left + right) // 2
+    def hash_function(self, key):
+        return hash(key) % self.size
 
-        if arr[mid] == target:
-            return iterations, arr[mid]  # Якщо знайдено точний збіг
+    def insert(self, key, value):
+        key_hash = self.hash_function(key)
+        key_value = [key, value]
 
-        if arr[mid] < target:
-            left = mid + 1
+        if not self.table[key_hash]:  # Перевірка на порожній список
+            self.table[key_hash] = [key_value] # Створення списку з елементом
+            return True
         else:
-            upper_bound = arr[mid]  # Оновлюємо верхню межу
-            right = mid - 1
+            for pair in self.table[key_hash]:
+                if pair[0] == key:
+                    pair[1] = value
+                    return True
+            self.table[key_hash].append(key_value)
+            return True
 
-    # Якщо target не знайдено, повертаємо найменший елемент, який є більшим або рівним
-    return iterations, upper_bound
+    def get(self, key):
+        key_hash = self.hash_function(key)
+        if self.table[key_hash]: # Перевірка на порожній список
+            for pair in self.table[key_hash]:
+                if pair[0] == key:
+                    return pair[1]
+        return None
+
+    def delete(self, key):
+        key_hash = self.hash_function(key)
+        if self.table[key_hash]:  # Перевірка, чи є що видаляти
+            for i, pair in enumerate(self.table[key_hash]):
+                if pair[0] == key:
+                    del self.table[key_hash][i]
+                    return True  # Повертаємо True, якщо успішно видалено
+            return False #Повертаємо False, якщо ключ не знайдено
+        return False #Повертаємо False, якщо за даним індексом нічого немає
 
 
-# Приклад використання
-sorted_array = [0.5, 1.2, 2.4, 3.7, 4.1, 5.6, 7.3]
-target_value = 3.0
+# Тестуємо нашу хеш-таблицю:
+H = HashTable(5)
+H.insert("apple", 10)
+H.insert("orange", 20)
+H.insert("banana", 30)
 
-result = binary_search(sorted_array, target_value)
-print(result)  # Виведе: (кількість ітерацій, верхня межа)
+print(H.get("apple"))    # Виведе: 10
+print(H.get("orange"))   # Виведе: 20
+print(H.get("banana"))   # Виведе: 30
+
+H.delete("orange")
+print(H.get("orange"))   # Виведе: None
+
+print(H.delete("grape")) #Виведе False
+
+H.insert("grape", 40)
+print(H.get("grape")) #Виведе 40
+
+H.delete("grape")
+print(H.get("grape")) #Виведе None
+
+H.delete("apple")
+print(H.get("apple")) #Виведе None
+
+H.delete("banana")
+print(H.get("banana")) #Виведе None
